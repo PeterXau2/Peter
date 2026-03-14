@@ -1,0 +1,36 @@
+<script>
+
+if(localStorage.getItem("admin") !== "true"){
+window.location="admin-login.html"
+}
+
+</script>
+
+
+<h2>Upload Portfolio</h2>
+
+<form id="uploadForm" enctype="multipart/form-data">
+
+<input type="file" name="image" required>
+
+<button type="submit">Upload Design</button>
+
+</form>
+
+<script>
+
+document.getElementById("uploadForm").addEventListener("submit", async (e)=>{
+e.preventDefault()
+
+const formData = new FormData(e.target)
+
+await fetch("/api/portfolio/upload",{
+method:"POST",
+body:formData
+})
+
+alert("Image Uploaded")
+
+})
+
+</script>

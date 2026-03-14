@@ -1,0 +1,32 @@
+<h2>Admin Login</h2>
+
+<input type="password" id="adminPass" placeholder="Enter Admin Key">
+
+<button onclick="login()">Login</button>
+
+<script>
+
+async function login(){
+
+const pass = document.getElementById("adminPass").value
+
+const res = await fetch("/api/admin/login",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body: JSON.stringify({password: pass })
+})
+
+const data = await res.json()
+
+if(data.success){
+localStorage.setItem("admin","true")
+window.location.href= "admin.html"
+}else{
+alert("Wrong key")
+}
+
+}
+
+</script>
