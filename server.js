@@ -4,74 +4,60 @@ const express = require("express")
 const mongoose = require("mongoose")
 const cors = require("cors")
 const path = require("path")
+const http = require("http")
+const { Server } = require("socket.io")
+const helmet = require("helmet")
 
 const app = express()
 
+// Middlewares
 app.use(express.json())
 app.use(cors())
+app.use(helmet())
 
+// Static folders
 app.use(express.static("public"))
 app.use("/uploads", express.static(path.join(__dirname,"uploads")))
 
+// Routes
 app.use("/api/designs", require("./routes/designs"))
 app.use("/api/orders", require("./routes/orders"))
 app.use("/api/portfolio", require("./routes/portfolio"))
 app.use("/api/payment", require("./routes/payment"))
+app.use("/api/admin", require("./routes/admin"))
+app.use("/api/ai", require("./routes/ai"))
 
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>console.log("MongoDB Connected"))
 .catch(err=>console.log(err))
 
-const http = require("http")
-const { Server } = require("socket.io")
-
+// Create server
 const server = http.createServer(app)
 
+// Socket.io
 const io = new Server(server,{
-cors:{origin:"*"}
+  cors:{origin:"*"}
 })
 
 io.on("connection",(socket)=>{
-console.log("User connected")
+  console.log("User connected")
 
-socket.on("chat message",(msg)=>{
-io.emit("chat message",msg)
+  socket.on("chat message",(msg)=>{
+    io.emit("chat message",msg)
+  })
+
+  socket.on("disconnect",()=>{
+    console.log("User disconnected")
+  })
 })
 
-socket.emit("chat message",{
-user:"Visitor",
-message:input.value
-})
-
-socket.on("disconnect",()=>{
-console.log("User disconnected")
-})
-})
-
-server.listen(process.env.PORT || 3000,()=>{
-console.log("Server running")
-})
-
-const helmet = require("helmet")
-
-app.use(helmet())
-
-const sharp = require("sharp")
-
-await sharp(req.file.path)
-.resize(800)
-.toFile("uploads/optimized-"+req.file.filename)
-
-
-const adminRoutes = require("./routes/admin")
-
-app.use("/api/admin", adminRoutes)
-
-
-app.use("/api/ai", require("./routes/ai"))
-
+// Start server
 const PORT = process.env.PORT || 5000
 
-server.listen(PORT, () => {
-console.log("Server running on port " + PORT)
+server.listen(PORT, ()=>{
+  console.log("Server running on port " + PORT)
 })
+
+
+app.use("/api/payment", require("./routes/payment"))

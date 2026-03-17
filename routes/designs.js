@@ -113,3 +113,16 @@ const designs = await Design.find()
 res.json(designs)
 
 })
+
+
+const sharp = require("sharp")
+
+router.post("/upload", upload.single("image"), async (req,res)=>{
+
+await sharp(req.file.path)
+.resize(800)
+.toFile("uploads/optimized-"+req.file.filename)
+
+res.json({success:true})
+
+})
